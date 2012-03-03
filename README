@@ -17,7 +17,7 @@ This program, written in python, was created as an interface to the excellent ri
 
 Note - All these packages are usually available in major distributions (Ubuntu, Linux Mint), except perhaps about to morituri and mutagen
 
-Not essential, but strongly recommended
+Not essential, but strongly recommended:
 
 * lame - the best mp3 encoder (command-line version)
 * oggenc - vorbis encoder
