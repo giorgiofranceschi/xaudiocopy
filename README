@@ -3,6 +3,28 @@ X Audio Copy
 GTK and GNOME application for ripping CD-Audio and encoding in lossy and lossless audio formats.
 Copyright 2010 Giorgio Franceschi
 
+This program, written in python, was created as an interface to the excellent ripper moriruri (http://thomas.apestaart.org/morituri/trac/), the only viable alternative to Exact Audio Copy for Linux. It can extract audio from CDs, convert audio files to different formats using gstreamer and using external stand-alone encoders like lame, oggenc or flac. I also added a simple player and the ability to manipulate audio files metada.
+
+== Dependencies ==
+
+* python >= 2.6 (no 3.x branch)
+* gtk, pygtk >= 2.16
+* gstreamer, pygst >= 0.10 - multimedia framework and its python binding
+* morituri >= 0.1.2 - python CD-Audio ripper (only command line)
+* CDDB, DiscID (python-cddb) >= 1.4 - python module to access a CDDB-server and get information about discs
+* PIL (python-imaging) >= 1.1.7 - python imaging library
+* mutagen (python-mutagen) >= 1.19 - python module to handle audio metadata (ID3 tags,...)
+
+Note - All these packages are usually available in major distributions (Ubuntu, Linux Mint), except perhaps about to morituri and mutagen
+
+Not essential, but strongly recommended
+
+* lame - the best mp3 encoder (command-line version)
+* oggenc - vorbis encoder
+* flac - flac lossless encoder
+* other command-line encoders...
+
+------------------------------
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
