@@ -342,7 +342,7 @@ class classXAudioCopy:
 					it = sel[1]
 					if not self.file_exists(af):
 						return
-	
+
 					self.FileTable.tvSelection.unselect_all()
 					self.FileTable.tvSelection.select_iter(it)
 					print "Riproduzione di: ", af.get_uri()
@@ -746,10 +746,13 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 			# Argomenti da passare:
 			# rip_args = ['cd', 'rip', '--output-directory=' + tempdir, '--track-template=%t - %n', '--profile=wav']
 			# In morituri waveenc non funziona. Bisogna lasciare l'uscita di default in flac
-			rip_args = ['cd', 'rip', '--output-directory=' + tempdir, '--track-template=%t - %n']
+			#rip_args = ['cd', 'rip', '--profile=wav', '--output-directory=' + tempdir, '--track-template=%t - %n', '--disc-template=%A - %s']
+			rip_args = ['cd', 'rip', '--profile=wav', '--output-directory=' + tempdir]
+			print "******** rip_args = ", rip_args
 			try:
 				# Avvia l'estrazione
 				ret = Ripper.main(rip_args)
+				print '***************** ret = ', ret
 				ret = 0
 			except:
 				self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning", "Task exception. Morituri don't work.")
@@ -856,13 +859,14 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 
 			# Riempita la coda, lancia il thread dell'encoder
 			self.encoder_thread = Converter(self, self.prefs, request_queue)
+			print "*********************************", encoder_thread
 			self.encoder_thread.start()
 
 			# Svuota la coda per fermare il thread
 			for sel in self.selconv:
 				request_queue.put(None)
-			
-			self.FileTable.tvSelection.unselect_all()			
+
+			self.FileTable.tvSelection.unselect_all()
 
 	# Aggiorna la progressbar durante la conversione
 	def on_ProgressBar(self):
@@ -942,7 +946,7 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 
 		if not dlgtag.response == gtk.RESPONSE_OK:
 			return
- 
+
 		if dlgtag.save_tags:
 			if dlgtag.save_tags_all:
 				for af in self.audioFileList.filelist:
@@ -954,7 +958,7 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 				sel = selection[0]
 				sel[0].write_metadata()
 				if dlgtag.id3v2:
-					sel[0].write_ID3v2()		
+					sel[0].write_ID3v2()
 				i = self.audioFileList.filelist.index(sel[0])
 				self.audioFileList.remove(sel[0].get_uri())
 				self.audioFileList.filelist.insert(i, AudioFile(sel[0].get_uri()))
@@ -1063,13 +1067,13 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 							furi.append("file://" + str(f))
 				for l in furi:
 					print "fpathList: ", l
-				self.audioFileList.add_list(furi)		
+				self.audioFileList.add_list(furi)
 
 			else:
 				# Se il percorso restituito è un file o un elenco di file
 				filenames = []
 				print FileChooser.get_filenames()[0]
-				if FileChooser.get_filenames():					
+				if FileChooser.get_filenames():
 					for f in FileChooser.get_filenames():
 						# Se il percorso restituito è una plaulist "*.m3u"
 						if f[-4:] == ".m3u":
