@@ -745,7 +745,6 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 			# Ripping del CD audio in una directory temporanea
 			# Argomenti da passare:
 			# rip_args = ['cd', 'rip', '--output-directory=' + tempdir, '--track-template=%t - %n', '--profile=wav']
-
 			rip_args = ['cd', 'rip', '--profile=wav', '--output-directory=' + tempdir]
 			'''try:
 				# Avvia l'estrazione
