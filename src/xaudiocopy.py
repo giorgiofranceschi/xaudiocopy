@@ -745,14 +745,11 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 			# Ripping del CD audio in una directory temporanea
 			# Argomenti da passare:
 			# rip_args = ['cd', 'rip', '--output-directory=' + tempdir, '--track-template=%t - %n', '--profile=wav']
-			# In morituri waveenc non funziona. Bisogna lasciare l'uscita di default in flac
-			#rip_args = ['cd', 'rip', '--profile=wav', '--output-directory=' + tempdir, '--track-template=%t - %n', '--disc-template=%A - %s']
+
 			rip_args = ['cd', 'rip', '--profile=wav', '--output-directory=' + tempdir]
-			print "******** rip_args = ", rip_args
-			try:
+			'''try:
 				# Avvia l'estrazione
 				ret = Ripper.main(rip_args)
-				print '***************** ret = ', ret
 				ret = 0
 			except:
 				self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning", "Task exception. Morituri don't work.")
@@ -760,14 +757,17 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 				self.set_status()
 				return
 			if ret == 0:
-				self.set_status("Ripping completed...")
+				self.set_status("Ripping completed...")'''
+
+			# Avvia l'estrazione con morituri
+			ret = Ripper.main(rip_args)
 
 			# Carica i file da convertire
 			walk = os.walk(tempdir)
 			convert_filelist = []
 			for dirpath, subdir, filenames in walk:
 				for f in filenames:
-					if f[-5:] == ".flac":
+					if f[-4:] == ".wav":
 						f = os.path.join(dirpath, f)
 						convert_filelist.append(AudioFile("file://" + f))
 
@@ -782,7 +782,6 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 				self.FileTable.tvSelection.unselect_all()
 
 			if self.selconv:
-				temp_format = self.prefs.get_option("output-format")
 				# Inizializza la coda
 				request_queue = Queue.Queue()
 				n = 0

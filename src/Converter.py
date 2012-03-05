@@ -19,7 +19,7 @@
 # USA
 
 
-import gobject, time, os, shlex, tempfile
+import gobject, time, os, shlex, tempfile, shutil
 import threading
 import Queue
 
@@ -96,8 +96,27 @@ class Converter(threading.Thread):
 			else:
 				input_path = af.get_uri()
 
+			# Se deve solo copiare i file wav dopo il ripping da CD
+			if not bool(int(self.prefs.get_option("rip-compressed"))):
+				# Estrae le opzioni per la conversione
+				format, save_path, output_file_name = self.Options(af, self.prefs)
+				# Copia il file wav nella directory definita e nel formato definito
+				shutil.copy2(af.get_filepath(), save_path + "/" + output_file_name + "." + format)
+				# Playlist
+				af_output = AudioFile("file://" + save_path + "/" + output_file_name + "." + format)
+				af_output.set_tags_as_dict(af.get_tags_as_dict())
+				if bool(int(self.prefs.get_option("playlist"))):
+					if "/CD" in save_path:
+						self.savepath = save_path[:save_path.index("/CD")]
+					else:
+						self.savepath = save_path
+					self.playlistname = af_output.get_tag("artist") + " - " + af_output.get_tag("album")
+					self.listsongs.append("#EXTINF:" + str(int(af_output.get_duration())) + "," + af_output.get_tag("artist") + " - " + af_output.get_tag("title") + "\n")
+					self.listsongs.append(af_output.get_filename() + "\n")
+				self.work_complete = True
+
 			# Se usa gstreamer per la conversione
-			if not bool(int(self.prefs.get_option("use-external-encoder"))):
+			elif not bool(int(self.prefs.get_option("use-external-encoder"))):
 				# Estrae le opzioni per la conversione
 				print self.Options(af, self.prefs)
 				format, mode, qual, bitrate, save_path, output_file_name, tagsv1, tagsv2 = self.Options(af, self.prefs)
@@ -288,6 +307,18 @@ class Converter(threading.Thread):
 		print "###outputfilename###: ", output_file_name
 
 		# Formato di uscita e qualità
+		if not bool(int(self.prefs.get_option("rip-compressed"))):
+			if prefs.get_option("output-format") == "wav":
+				mode = None
+				qual = None
+				bitrate = None
+			# Inserisce nella coda gli elementi da processare:
+			# numero selezione, selezione, formato di output, mode (per mp3), qualità, bitrate,
+			# path di uscita, nome del file di uscita, tags v1 e tags v2
+			request = [prefs.get_option("output-format"), save_path, output_file_name]
+
+			return request
+
 		if not bool(int(prefs.get_option("use-external-encoder"))):
 			if prefs.get_option("output-format") == "ogg":
 				mode = None
