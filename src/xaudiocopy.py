@@ -857,7 +857,6 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 
 			# Riempita la coda, lancia il thread dell'encoder
 			self.encoder_thread = Converter(self, self.prefs, request_queue)
-			print "*********************************", encoder_thread
 			self.encoder_thread.start()
 
 			# Svuota la coda per fermare il thread
