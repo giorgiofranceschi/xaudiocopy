@@ -737,7 +737,7 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 			return
 		else:
 			self.set_status("Ripping Audio CD ...")
-
+			sorgente = "cd"
 			# Posizione temporanea
 			import tempfile
 			tempdir = tempfile.mkdtemp()
@@ -804,7 +804,7 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 				self.progConvert.show()
 
 				# Riempita la coda, lancia il thread dell'encoder
-				self.encoder_thread = Converter(self, self.prefs, request_queue)
+				self.encoder_thread = Converter(self, self.prefs, sorgente, request_queue)
 				self.encoder_thread.start()
 
 				# Svuota la coda per fermare il thread
@@ -822,7 +822,8 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 
 		if not dlgCon.response == gtk.RESPONSE_OK:
 			return
-
+		
+		sorgente = "file"
 		#Carica la lista dei file selezionati
 		if not bool(int(self.prefs.get_option("save-all-tracks"))):
 			# Solo i file selezionati
@@ -856,7 +857,7 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 			self.progConvert.show()
 
 			# Riempita la coda, lancia il thread dell'encoder
-			self.encoder_thread = Converter(self, self.prefs, request_queue)
+			self.encoder_thread = Converter(self, self.prefs, sorgente, request_queue)
 			self.encoder_thread.start()
 
 			# Svuota la coda per fermare il thread

@@ -46,13 +46,14 @@ from TagFinder import *
 ### Thread che avvia la pipeline per la conversione dei file con gstreamer###
 class Converter(threading.Thread):
 
-	def __init__(self, mainapp, prefs, request_queue):
+	def __init__(self, mainapp, prefs, sorgente, request_queue):
 
 		threading.Thread.__init__(self)
 
 		self.mainapp = mainapp
 		self.request_queue = request_queue
 		self.prefs = prefs
+		self.sorgente = sorgente
 		if bool(int(self.prefs.get_option("playlist"))):
 			self.listsongs = []
 			self.listsongs.append("#EXTM3U" + "\n")
@@ -97,7 +98,7 @@ class Converter(threading.Thread):
 				input_path = af.get_uri()
 
 			# Se deve solo copiare i file wav dopo il ripping da CD
-			if not bool(int(self.prefs.get_option("rip-compressed"))):
+			if not bool(int(self.prefs.get_option("rip-compressed"))) and self.sorgente=="cd":
 				# Estrae le opzioni per la conversione
 				format, save_path, output_file_name = self.Options(af, self.prefs)
 				# Copia il file wav nella directory definita e nel formato definito
@@ -121,6 +122,7 @@ class Converter(threading.Thread):
 				print self.Options(af, self.prefs)
 				format, mode, qual, bitrate, save_path, output_file_name, tagsv1, tagsv2 = self.Options(af, self.prefs)
 				# Pipeline
+				print input_path, format, mode, qual, bitrate, save_path + "/" + output_file_name
 				converter_pipe = Pipeline(input_path, format, mode, qual, bitrate, save_path + "/" + output_file_name)
 
 				# Rimane nel ciclo finché la pipeline non è finita
@@ -157,7 +159,10 @@ class Converter(threading.Thread):
 						self.savepath = save_path
 					self.playlistname = af_output.get_tag("artist") + " - " + af_output.get_tag("album")
 					self.listsongs.append("#EXTINF:" + str(int(af_output.get_duration())) + "," + af_output.get_tag("artist") + " - " + af_output.get_tag("title") + "\n")
-					self.listsongs.append(save_path[save_path.index("/CD") + 1:] + "/" + af_output.get_filename() + "\n")
+					if "/CD" in save_path:
+						self.listsongs.append(save_path[save_path.index("/CD") + 1:] + "/" + af_output.get_filename() + "\n")
+					else:
+						self.listsongs.append(save_path + "/" + af_output.get_filename() + "\n")
 				self.work_complete = True
 
 			# Se usa un encoder esterno. Prima decodifica il file.
@@ -307,7 +312,7 @@ class Converter(threading.Thread):
 		print "###outputfilename###: ", output_file_name
 
 		# Formato di uscita e qualità
-		if not bool(int(self.prefs.get_option("rip-compressed"))):
+		if not bool(int(self.prefs.get_option("rip-compressed"))) and self.sorgente=="cd":
 			if prefs.get_option("output-format") == "wav":
 				mode = None
 				qual = None
