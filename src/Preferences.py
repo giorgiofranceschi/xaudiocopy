@@ -25,7 +25,7 @@ import ConfigParser
 ### Un po' di costanti ###
 
 # About
-ICON = "../data/xaudiocopy-new.png"
+ICON = "../data/xaudiocopy-monochrome.png"
 NAME = "X Audio Copy"
 VERSION = "0.02.1 alpha"
 COMMENTS = "GTK and GNOME application for playing audio files, ripping CD-Audio and encoding in lossy and lossless audio formats."
