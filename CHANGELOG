@@ -6,5 +6,10 @@
 
 	* First functional version
 
+2013-05-31 - ver. 0.02.1
+
+	* Risolti un bug introdotto nella versione precedente con l'aggiornamento di morituri:
+	- conversione dei file che non veniva effettuata perché il Converter copiava i file cambiando solo l'estensione;
+	- playlist non create per la mancanza di "/CD" nel path di salvataggio.
 
 
