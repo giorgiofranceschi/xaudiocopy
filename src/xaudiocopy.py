@@ -658,6 +658,7 @@ class classXAudioCopy:
 					for cd in self.audioCD.query_info:
 						cds.append([cd["disc_id"], cd["category"], cd["title"]])
 					self.CDDBSelection = CDDBSelection(self.mainWindow, cds)
+					print self.CDDBSelection.selected_cd
 					selected_cd = int(self.CDDBSelection.selected_cd)
 					self.audioCD.get_CDDB_tag(self.audioCD.query_status, self.audioCD.query_info[selected_cd])
 				else:
