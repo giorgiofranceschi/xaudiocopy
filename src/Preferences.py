@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # X Audio Copy - GTK and GNOME application for ripping CD-Audio and encoding in lossy and lossless audio formats.
-# Copyright 2010 Giorgio Franceschi
+# Copyright 2010 - 2013 Giorgio Franceschi
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import ConfigParser
 # About
 ICON = "../data/xaudiocopy.png"
 NAME = "X Audio Copy"
-VERSION = "0.02.1 alpha"
+VERSION = "0.02.2 alpha"
 COMMENTS = "GTK and GNOME application for playing audio files, ripping CD-Audio and encoding in lossy and lossless audio formats."
 COPYRIGHT_OWNER = "Giorgio Franceschi"
 COPYRIGHT_YEAR = "2010-2013"

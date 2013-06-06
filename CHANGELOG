@@ -4,12 +4,28 @@
 
 2011-01-06 - ver. 0.02
 
-	* First functional version
+	* First working version
 
 2013-05-31 - ver. 0.02.1
 
-	* Risolti un bug introdotto nella versione precedente con l'aggiornamento di morituri:
+	* Risolti alcuni bug introdotti nella versione precedente con l'aggiornamento di morituri:
 	- conversione dei file che non veniva effettuata perché il Converter copiava i file cambiando solo l'estensione;
 	- playlist non create per la mancanza di "/CD" nel path di salvataggio.
+
+2013-06-06 - ver. 0.02.2
+
+	Modifiche
+	* Le tracce dei CD vengono caricate una alla volta
+	* Creato un modulo separato per la finestra di dialogo per la scelta dei CD da FreeDB
+	* La finestra di dialogo compare anche se c'è una sola corrispondenza su FreeDB
+	* Aggiunto un pulsante che permette di rifiutare i tag proposti da FreeDB
+	
+	Da completare
+	* Aggiunta una classe per la gestione dei tag dei CD prelevati da MusicBrainz (richiede musicbrainzngs già presente tra le dipendenze di morituri)
+	
+	TODO
+	* Creare una classe separata per il codice nella funzione on_CD (caricamento del CD e riempimento dei tag)
+	* Creare finestra di dialogo per MusicBrainz
+	* Rendere MusicBrainz predefinito con FreeDB di riserva (mettere opzione?)
 
 

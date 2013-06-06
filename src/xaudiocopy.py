@@ -63,6 +63,7 @@ from Converter import *
 from TaggerDialog import *
 from PlaylistDialog import *
 from PropertyDialog import *
+from CDDBDialog import *
 
 # Setta l'icona del programma per tutte le finestre
 gtk.window_set_default_icon_from_file(ICON)
@@ -639,10 +640,11 @@ class classXAudioCopy:
 			if self.audioCD.query_status == 409:
 				self.set_status("No connection to the internet is current available or no server response...")
 				self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning","No connection to the internet is current available or no server response...")
-				self.TagBar.entry_tag("Unknow album", "Unknow artist", "Unknow year", "Unknow genre")
+				self.TagBar.entry_tag("Unknown album", "Unknown artist", "Year", "Unknown genre")
 
 				for i in range(self.audioCD.disc_id[1]):
 					n = "%.02d" %(i + 1)
+					self.set_status("Append " + "Track " + n + "/" + str(self.audioCD.disc_id[1]))
 					af = AudioFile("cdda://" + n, n)
 					af.set_tag("track_number", n)
 					af.set_tag("title", "Track " + n)
@@ -650,41 +652,56 @@ class classXAudioCopy:
 					af.set_filename("Track " + n)
 					print af.get_tags_as_dict()
 					self.audioFileList.append(af)
-					self.set_status("Append " + af.get_filename() + "/" + str(self.audioCD.disc_id[1]))
+					self.FileTable.append(self.audioFileList)
 			else:
-				if type(self.audioCD.query_info).__name__ == "list":
-					print "E'UNA LISTA"
-					cds = []
-					for cd in self.audioCD.query_info:
-						cds.append([cd["disc_id"], cd["category"], cd["title"]])
-					self.CDDBSelection = CDDBSelection(self.mainWindow, cds)
-					print self.CDDBSelection.selected_cd
-					selected_cd = int(self.CDDBSelection.selected_cd)
-					self.audioCD.get_CDDB_tag(self.audioCD.query_status, self.audioCD.query_info[selected_cd])
+				if not type(self.audioCD.query_info).__name__ == "list":
+					print "NON E' UNA LISTA"
+					self.audioCD.query_info = [self.audioCD.query_info]
 				else:
-					self.audioCD.get_CDDB_tag(self.audioCD.query_status, self.audioCD.query_info)
+					print "E'UNA LISTA"
+				cds = []
+				for cd in self.audioCD.query_info:
+					cds.append([cd["disc_id"], cd["category"], cd["title"]])
+				self.CDDBDialog = CDDBDialog(self.mainWindow, cds)
+				if self.CDDBDialog.selected_cd:
+					if self.CDDBDialog.selected_cd == "reject":
+						self.TagBar.entry_tag("Unknown album", "Unknown artist", "Year", "Unknown genre")
+						for i in range(self.audioCD.disc_id[1]):
+							n = "%.02d" %(i + 1)
+							self.set_status("Append " + "Track " + n + "/" + str(self.audioCD.disc_id[1]))
+							af = AudioFile("cdda://" + n, n)
+							af.set_tag("track_number", n)
+							af.set_tag("title", "Track " + n)
+							#af.frame = self.audioCD.disc_id[i+2]
+							af.set_filename("Track " + n)
+							self.audioFileList.append(af)
+							self.FileTable.append(self.audioFileList)
+					else:
+						selected_cd = int(self.CDDBDialog.selected_cd)
+						self.audioCD.get_CDDB_tag(self.audioCD.query_status, self.audioCD.query_info[selected_cd])
 
-				self.TagBar.entry_tag(self.audioCD.album, self.audioCD.artist, self.audioCD.year, self.audioCD.cddb_genre)
-				self.CDdata = {"album": self.audioCD.album,
-							"artist": self.audioCD.artist,
-							"year": self.audioCD.year,
-							"genre": self.audioCD.cddb_genre
-							}
-				for song in self.audioCD.song_list:
-					af = AudioFile("cdda://" + str("%.02d" %(song["track_number"])), song["track_number"])
-					af.set_tag("track_number", "%.02d" %(song["track_number"]))
-					af.set_tag("title", song["title"])
-					af.set_tag("artist", self.audioCD.artist)
-					af.set_tag("album", self.audioCD.album)
-					af.set_tag("year", self.audioCD.year)
-					af.set_tag("genre", self.audioCD.cddb_genre)
-					af.set_filename("Track " + str("%.02d" %(song["track_number"])))
-					print af.get_tags_as_dict()
-					self.audioFileList.append(af)
-					self.set_status("Append " + af.get_filename() + "/" + str(self.audioCD.disc_id[1]))
+						self.TagBar.entry_tag(self.audioCD.album, self.audioCD.artist, self.audioCD.year, self.audioCD.cddb_genre)
+						self.CDdata = {"album": self.audioCD.album,
+								"artist": self.audioCD.artist,
+								"year": self.audioCD.year,
+								"genre": self.audioCD.cddb_genre
+								}
+						for song in self.audioCD.song_list:
+							self.set_status("Append " + "Track " + str("%.02d" %(song["track_number"])) + "/" + str(self.audioCD.disc_id[1]))
+							af = AudioFile("cdda://" + str("%.02d" %(song["track_number"])), song["track_number"])
+							af.set_tag("track_number", "%.02d" %(song["track_number"]))
+							af.set_tag("title", song["title"])
+							af.set_tag("artist", self.audioCD.artist)
+							af.set_tag("album", self.audioCD.album)
+							af.set_tag("year", self.audioCD.year)
+							af.set_tag("genre", self.audioCD.cddb_genre)
+							af.set_filename("Track " + str("%.02d" %(song["track_number"])))
+							print af.get_tags_as_dict()
+							self.audioFileList.append(af)
+							self.FileTable.append(self.audioFileList)
+				else:
+					return
 
-			# Scrive i file nella tabella
-			self.FileTable.append(self.audioFileList)
 			self.set_status()
 			self.audioCD = None
 			self.set_sensitive(True)
@@ -1433,90 +1450,6 @@ class TagBar:
 		self.entryArtist.hide()
 		self.entryYear.hide()
 		self.entryGenre.hide()
-
-
-### Finestra di dialogo per la selezione dei CD da freeDB ###
-class CDDBSelection:
-
-	# Costruttore della classe
-	def __init__(self, main_window, CDDBdisc):
-
-		# Inizilizza la variabile
-		self.selected_cd = None
-
-		# Finestra di dialogo
-		#self.dlgCDDBSelection = gtk.Dialog("Select CD...", main_window,
-		#             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-		#            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		self.dlgCDDBSelection = gtk.Dialog("Select CD from freeDB...", main_window,
-					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
-		self.dlgCDDBSelection.set_default_size(410, 60)
-		self.dlgCDDBSelection.set_border_width(5)
-
-
-		# Box della finestra
-		self.vbox = self.dlgCDDBSelection.vbox
-		self.vbox.set_spacing(2)
-		self.vbox.set_homogeneous(False)
-
-		scroll = gtk.ScrolledWindow()
-		self.vbox.add(scroll)
-		scroll.show()
-
-		# Etichetta (posizione 1 nella VBox)
-		self.labelCDDB = gtk.Label("Several exact matches found. Plese select your CD")
-		self.labelCDDB.set_alignment(0, 0.5)
-		self.labelCDDB.set_padding(10, 10)
-		self.dlgCDDBSelection.vbox.add(self.labelCDDB)
-		self.labelCDDB.show()
-
-		# TreeView (posizione 2 nella VBox)
-		self.tvSelectCD = gtk.TreeView()
-		self.tvSelectCD.connect("row-activated", self.on_CD_selected)
-		scroll.add(self.tvSelectCD)
-		self.tvSelectCD.show()
-
-		# Pulsante OK
-		self.cmdOKCDDB = gtk.Button(label="_Ok", use_underline=True)
-		self.cmdOKCDDB.connect("clicked", self.on_CD_selected)
-		self.dlgCDDBSelection.add_action_widget(self.cmdOKCDDB, 1)
-		self.cmdOKCDDB.show()
-
-		# Colonne del TreeView
-		cell = gtk.CellRendererText()
-		column0 = gtk.TreeViewColumn("Disc ID", cell, text=0)
-		column1 = gtk.TreeViewColumn("Category", cell, text=1)
-		column2 = gtk.TreeViewColumn("Artist / Title", cell, text=2)
-		self.tvSelectCD.append_column(column0)
-		self.tvSelectCD.append_column(column1)
-		self.tvSelectCD.append_column(column2)
-
-		# Selezione
-		self.selectCD = self.tvSelectCD.get_selection()
-
-		# Crea il modello ListStore con il contenuto della tabella
-		self.cdList = gtk.ListStore(str, str, str)
-		# Lo collega al TreeView
-		self.tvSelectCD.set_model(self.cdList)
-
-		for cd in CDDBdisc:
-			# Popola di dati le righe
-			self.cdList.append(cd)
-
-		# Attiva e visualizza la finestra di dialogo
-		self.dlgCDDBSelection.run()
-
-	def on_CD_selected(self, *args):
-
-		model, row_iter = self.selectCD.get_selected()
-		print "model: ", model
-		print "row: ", row_iter
-		if not row_iter:
-			row_iter = self.cdList.get_iter_root()
-		self.selected_cd = self.cdList.get_string_from_iter(row_iter)
-		print self.selected_cd
-
-		self.dlgCDDBSelection.destroy()
 
 
 ### Main ###
