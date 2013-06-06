@@ -29,6 +29,7 @@ class MBReader():
 	# Costruttore della classe
 	def __init__(self):
 	
+		self.error = None
 		cdaudio = cdrom.open()
 		print "CD: ", cdaudio
 
@@ -98,13 +99,13 @@ class MBReader():
 		if self.is_audio_cd:
 			try:
 				from musicbrainzngs import musicbrainz, ResponseError, NetworkError
-			except:
+			except ImportError as imperr:
 				print "musicbrainzngs not available"
+				self.error = ("100", "Import error", imperr)
 				raise
 
 			MBhost = "mm.musicbrainz.org"
 			disc_id = self.get_MB_disc_id()
-			
         		query = urllib.urlencode({
             			"id": disc_id,
             			"toc": " ".join([str(value) for value in self.__MB_full_toc]),
@@ -112,21 +113,33 @@ class MBReader():
        				})
 			print urlparse.urlunparse(("http", MBhost, "/bare/cdlookup.html", "", query, ""))
 
-			musicbrainz.set_useragent("xaudiocopy", "0.02.1")
+			try:
+				musicbrainz.set_useragent("xaudiocopy", "0.02.1")
+			except:
+				self.error("101", "User agent error", "")
+				raise
 			# Scarica le release del disco in base al Disc ID
 			try:
 				releases = musicbrainz.get_releases_by_discid(disc_id, 
 					includes=["artists", "recordings", "release-groups", "labels"])
-			except ResponseError as err:
-				if err.cause.code == 404:
-					print "Disc not found", err
+			except ResponseError as reserr:
+				if reserr.cause.code == 404:
+					print "Disc not found", reserr
+					self.error = (reserr.cause.code, "Disc not found", reserr)
+					raise
 				else:
-					print "Bad response from the MB server", err
-				raise 
+					print "Bad response from the MB server", reserr
+					self.error = (reserr.cause.code, "Bad response from the MB server", reserr)
+					raise
 			except NetworkError as neterr:
 				print "Network connection error", neterr
-				raise			
-
+				self.error = ("402", "Network connection error", neterr)
+				raise
+				""" Eccezione non gestita nella versione 0.2 di musicbrainzngs
+			except AuthenticationError as auterr:
+				print "Receved a HTTP 401 response while accessing a protected resource"
+				self.error = (auterr, "Receved a HTTP 401 response while accessing a protected resource", auterr)		
+				raise"""
 			i = 0
 			# Lista che contiene tutte le release
 			MB_releases = []
@@ -138,13 +151,14 @@ class MBReader():
 				# Dizionario che contiene le informazioni di ogni release
 				MB_release = {
 					"artist" : "",
-					"title" : "",
-					"MusicBrainz-ID" : "",
+					"album-title" : "",
+					"album-id" : "",
 					"barcode" : "",
 					"catalog" : [],
 					"packaging" : "",
 					"date" : "",
 					"country" : "",
+					"disc-id" : disc_id,
 				}
 
 				# Artista
@@ -152,10 +166,10 @@ class MBReader():
 					MB_release["artist"] = release["artist-credit-phrase"]
 				# Titolo
 				if release.get("title"):
-					MB_release["title"] = release["title"]
+					MB_release["album-title"] = release["title"]
 				# MusicBrainz ID
 				if release.get("id"):
-					MB_release["MusicBrainz-ID"] = release["id"]
+					MB_release["album-id"] = release["id"]
 				# Codice a barre EAN/UPC
 				if release.get("barcode"):
 					MB_release["barcode"] = release["barcode"]
@@ -196,18 +210,90 @@ class MBReader():
 		else:
 			return None
 
+	# Restituisce le tracce del disco in base all'ID della release
+	def get_MB_tracks_from_release(self, MB_release):
+			
+		try:
+			from musicbrainzngs import musicbrainz, ResponseError, NetworkError
+		except ImportError as imperr:
+			print "musicbrainzngs not available"
+			self.error = ("100", "Import error", imperr)
+			raise
+			
+		try:
+			musicbrainz.set_useragent("xaudiocopy", "0.02.1")
+		except:
+			self.error("101", "User agent error", "")
+			raise
+		# Scarica la release del disco in base all'ID
+		try:
+			release = musicbrainz.get_release_by_id(MB_release["album-id"], 
+				includes=["artists", "recordings", "release-groups", "labels"])
+		except ResponseError as reserr:
+			if reserr.cause.code == 404:
+				print "Disc not found", reserr
+				self.error = (reserr.cause.code, "Disc not found", reserr)
+				raise
+			else:
+				print "Bad response from the MB server", reserr
+				self.error = (reserr.cause.code, "Bad response from the MB server", reserr)
+				raise
+		except NetworkError as neterr:
+			print "Network connection error", neterr
+			self.error = ("402", "Network connection error", neterr)
+			raise
+			""" Eccezione non gestita nella versione 0.2 di musicbrainzngs
+		except AuthenticationError as auterr:
+			print "Receved a HTTP 401 response while accessing a protected resource"
+			self.error = (auterr, "Receved a HTTP 401 response while accessing a protected resource", auterr)		
+			raise"""
+		print release
+		
+		# La release è un dict con dentro un altro dict "release"
+		# TODO Esistono release che hanno altri elementi?
+		release = release["release"]
+
+		tracks_list = []
+		# Per ogni disco presente (se presente) trova quello giusto
+		if release["id"] == MB_release["album-id"]:
+			for medium in release["medium-list"]:
+				for track in medium["track-list"]:
+					# Dizionario con i tag della canzone
+					self.track = {
+						"track-number" : int(track["position"]),
+						"title" : track["recording"]["title"],
+						"artist" : release["artist-credit"][0]["artist"]["name"],
+						"artist-sort-name" : release["artist-credit"][0]["artist"]["sort-name"],
+						"album" : release["title"],
+						"recording-id" : track["recording"]["id"],
+						"album-id" : release["id"],
+						"artist-id" : release["artist-credit"][0]["artist"]["id"],
+						#"lenght" : track["recording"]["lenght"],
+						"release" : MB_release,
+						}
+					tracks_list.append(self.track)
+				
+				# Stampa di prova
+				i = 0
+				for t in tracks_list:
+					i+=1
+					print
+					print "TRACK %d" % i
+					keys = t.keys()
+					for k in keys:
+						print '%s = %s' % (k,t[k])
+
+
 
 ### Test ###
 """cd = MBReader()
 try:
-	from musicbrainzngs import ResponseError, NetworkError
-	cd.get_MB_releases()
-
-except ResponseError as err:
-	if err.cause.code == 404:
-		print "Disc not found"
-	else:
-		print "Bad response from the MB server"
-except NetworkError as neterr:
-	print "Network connection error"
+	releases = cd.get_MB_releases()
+	print
+	print "selected release: ", releases[0]["album-id"]
+	print
+	release = cd.get_MB_tracks_from_release(releases[0])
+except:
+	print cd.error
+	raise
 """
