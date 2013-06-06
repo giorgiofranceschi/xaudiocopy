@@ -37,24 +37,13 @@ try:
 except:
 	print("GTK not available")
 	sys.exit(1)
-try:
-	import pygst
-	pygst.require("0.10")
-	import gst
-except:
-	print("Gstreamer not available")
-try:
-	import CDDB, DiscID
-except:
-	print("CDDB not available")
 
-from AudioFile import *
-from FileList import *
-from CDDBReader import *
 from Preferences import *
 from WarningDialog import *
+from CDDBReader import *
 from MBReader import *
 from CDDBDialog import *
+from MBDialog import *
 
 
 ### Classe che gestisce l'apertura dei CD e il reperimento dei tag da MusicBrainz o da FreeDB ###
@@ -65,9 +54,91 @@ class CDSelection:
 		
 		self.main_window = main_window		
 		self.CDdata = None
+
 		try:
-			self.audioCD = CDDBReader()
-		except: raise
+			self.audioCD = MBReader()
+		except:
+			raise
+		
+		#try:
+		#	self.audioCD = CDDBReader()
+		#except: raise
+
+	def select_CD_from_MB(self):
+
+		tags_list = []
+		if self.audioCD.is_audio_cd:
+			try:
+				MB_releases = self.audioCD.get_MB_releases()
+			except:
+				numerr, msg, err = self.audioCD.error	
+				if numerr == "402":
+					print self.audioCD.error
+					MB_releases = None
+				else:
+					raise
+
+			if MB_releases == None:				
+				for i in range(self.audioCD.num_tracks):
+					n = "%.02d" %(i + 1)					
+					tags = {
+						"n" : i + 1,
+						"uri" : "cdda://" + n,
+						"track-number" : n,
+						"title" : "Track " + n,
+						"filename" : "Track " + n,
+						"album": "Unknown album",
+						"artist": "Unknown artist",
+						"year": "Year",
+						"genre": "Unknown genre",
+						}
+					tags_list.append(tags)
+			else:
+				self.MBDialog = MBDialog(self.main_window, MB_releases)
+
+				if self.MBDialog.selected_cd:
+					if self.MBDialog.selected_cd == "reject":
+						for i in range(self.audioCD.num_tracks):
+							n = "%.02d" %(i + 1)
+							tags = {
+								"n" : i + 1,
+								"uri" : "cdda://" + n,
+								"track-number" : n,
+								"title" : "Track " + n,
+								"filename" : "Track " + n,
+								"album": "Unknown album",
+								"artist": "Unknown artist",
+								"year": "Year",
+								"genre": "Unknown genre",
+								}
+							tags_list.append(tags)
+					else:
+						selected_cd = int(self.MBDialog.selected_cd)
+						tracks = self.audioCD.get_MB_tracks_from_release(MB_releases[selected_cd])
+
+						for song in tracks:
+							tags = {
+								"n" : song["track-number"],
+								"uri" : "cdda://" + str("%.02d" %(song["track-number"])),
+								"track-number" : "%.02d" %(song["track-number"]),
+								"title" : song["title"],
+								"filename" : "Track " + str("%.02d" %(song["track-number"])),
+								"album": song["album"],
+								"artist": song["artist"],
+								"year": song["release"]["date"][:4],
+								"genre": "",
+								}
+							tags_list.append(tags)
+				else:
+					return
+		else:
+			self.audioCD = None
+		print
+		print "TAG LIST: ", tags_list
+		print
+		return tags_list
+
+
 
 	def select_CD_from_CDDB(self):
 

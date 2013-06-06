@@ -64,6 +64,7 @@ from TaggerDialog import *
 from PlaylistDialog import *
 from PropertyDialog import *
 from CDDBDialog import *
+from MBDialog import *
 from CDSelection import *
 
 # Setta l'icona del programma per tutte le finestre
@@ -614,7 +615,7 @@ class classXAudioCopy:
 
 		self.player.rewind()
 
-	# Evento che apre un CD_Audio e carica i tag da freeDB
+	# Evento che apre un CD_Audio e carica i tag da MusicBrainz o da FreeDB
 	# se il server è disponibile
 	def on_CD(self, *args):
 
@@ -627,7 +628,8 @@ class classXAudioCopy:
 			self.set_status("Insert an Audio CD into the drive...")
 			self.cmdOpenFile.set_sensitive(True)
 			self.cmdOpenFolder.set_sensitive(True)
-			self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning", "No disc into the drive. Please insert one...")
+			self.dlg = WarningDialog(self.mainWindow, 
+					NAME + " - Warning", "No disc into the drive. Please insert one...")
 			return
 
 		if self.CDSelection.audioCD.is_audio_cd:
@@ -637,13 +639,16 @@ class classXAudioCopy:
 			self.cmdPlay.set_stock_id("gtk-media-play")
 			self.on_Stop()
 			
-			tags_list = self.CDSelection.select_CD_from_CDDB()
+			#tags_list = self.CDSelection.select_CD_from_CDDB()
+			tags_list = self.CDSelection.select_CD_from_MB()
+
+			if self.CDSelection.audioCD.error == "402":
+				self.set_status("No connection to the internet is current available or no server response...")
+				self.dlg = WarningDialog(self.mainWindow, 
+						NAME + " - Warning","No connection to the internet is current available or no server response...")
+
 			if tags_list == None:
 				return
-
-			if self.CDSelection.audioCD.query_status == 409:
-				self.set_status("No connection to the internet is current available or no server response...")
-				self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning","No connection to the internet is current available or no server response...")
 
 			self.TagBar.entry_tag(
 					tags_list[0]["album"],
@@ -1369,7 +1374,7 @@ class TagBar:
 
 		fa = lambda x : x=="" and "Unknown artist" or x
 		fl = lambda x : x=="" and "Unknown album" or x
-		fg = lambda x : x=="" and "Unknown genre" or x
+		fg = lambda x : x=="" and "" or x
 		self.entryAlbum.set_text(fl(album))
 		self.entryArtist.set_text(fa(artist))
 		self.entryYear.set_text(str(year))

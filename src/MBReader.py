@@ -104,14 +104,15 @@ class MBReader():
 				self.error = ("100", "Import error", imperr)
 				raise
 
-			MBhost = "mm.musicbrainz.org"
 			disc_id = self.get_MB_disc_id()
-        		query = urllib.urlencode({
+
+			"""MBhost = "mm.musicbrainz.org"
+	 		query = urllib.urlencode({
             			"id": disc_id,
             			"toc": " ".join([str(value) for value in self.__MB_full_toc]),
             			"tracks": self.num_tracks,
        				})
-			print urlparse.urlunparse(("http", MBhost, "/bare/cdlookup.html", "", query, ""))
+			print urlparse.urlunparse(("http", MBhost, "/bare/cdlookup.html", "", query, ""))"""
 
 			try:
 				musicbrainz.set_useragent("xaudiocopy", "0.02.1")
@@ -273,15 +274,17 @@ class MBReader():
 						}
 					tracks_list.append(self.track)
 				
-				# Stampa di prova
-				i = 0
-				for t in tracks_list:
-					i+=1
-					print
-					print "TRACK %d" % i
-					keys = t.keys()
-					for k in keys:
-						print '%s = %s' % (k,t[k])
+		# Stampa di prova
+		i = 0
+		for t in tracks_list:
+			i+=1
+			print
+			print "TRACK %d" % i
+			keys = t.keys()
+			for k in keys:
+				print '%s = %s' % (k,t[k])
+
+		return tracks_list
 
 
 
@@ -295,5 +298,5 @@ try:
 	release = cd.get_MB_tracks_from_release(releases[0])
 except:
 	print cd.error
-	raise
-"""
+	raise"""
+
