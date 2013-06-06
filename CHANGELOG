@@ -28,4 +28,14 @@
 	* Creare finestra di dialogo per MusicBrainz
 	* Rendere MusicBrainz predefinito con FreeDB di riserva (mettere opzione?)
 
+2013-06-06 - ver. 0.02.3
+
+	* Creata fienstra di dialogo per MusicBrainz
+	* Creata classe separata per il caricamento dei CD
+	* Ora la ricerca dei tag per i CD avviene da MusicBrainz (predefinito)
+
+	TODO
+	* Rendere FreeDB la seconda scelta
+	* CD di artisti vari e CD ibridi
+	* Sistemare MBDialog e CDDBDialog (vbox, ecc.)
 
