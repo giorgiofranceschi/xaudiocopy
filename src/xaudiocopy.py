@@ -64,6 +64,7 @@ from TaggerDialog import *
 from PlaylistDialog import *
 from PropertyDialog import *
 from CDDBDialog import *
+from CDSelection import *
 
 # Setta l'icona del programma per tutte le finestre
 gtk.window_set_default_icon_from_file(ICON)
@@ -620,9 +621,8 @@ class classXAudioCopy:
 		self.set_status("Adding Audio CD...")
 		self.TagBar.purge()
 
-		self.CDdata = None
 		try:
-			self.audioCD = CDDBReader()
+			self.CDSelection = CDSelection(self.mainWindow)
 		except:
 			self.set_status("Insert an Audio CD into the drive...")
 			self.cmdOpenFile.set_sensitive(True)
@@ -630,80 +630,42 @@ class classXAudioCopy:
 			self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning", "No disc into the drive. Please insert one...")
 			return
 
-		if self.audioCD.is_audio_cd:
+		if self.CDSelection.audioCD.is_audio_cd:
 			self.audioFileList.purge()
 			self.FileTable.purge()
 			self.TagBar.show()
 			self.cmdPlay.set_stock_id("gtk-media-play")
 			self.on_Stop()
+			
+			tags_list = self.CDSelection.select_CD_from_CDDB()
+			if tags_list == None:
+				return
 
-			if self.audioCD.query_status == 409:
+			if self.CDSelection.audioCD.query_status == 409:
 				self.set_status("No connection to the internet is current available or no server response...")
 				self.dlg = WarningDialog(self.mainWindow, NAME + " - Warning","No connection to the internet is current available or no server response...")
-				self.TagBar.entry_tag("Unknown album", "Unknown artist", "Year", "Unknown genre")
 
-				for i in range(self.audioCD.disc_id[1]):
-					n = "%.02d" %(i + 1)
-					self.set_status("Append " + "Track " + n + "/" + str(self.audioCD.disc_id[1]))
-					af = AudioFile("cdda://" + n, n)
-					af.set_tag("track_number", n)
-					af.set_tag("title", "Track " + n)
-					#af.frame = self.audioCD.disc_id[i+2]
-					af.set_filename("Track " + n)
-					print af.get_tags_as_dict()
-					self.audioFileList.append(af)
-					self.FileTable.append(self.audioFileList)
-			else:
-				if not type(self.audioCD.query_info).__name__ == "list":
-					print "NON E' UNA LISTA"
-					self.audioCD.query_info = [self.audioCD.query_info]
-				else:
-					print "E'UNA LISTA"
-				cds = []
-				for cd in self.audioCD.query_info:
-					cds.append([cd["disc_id"], cd["category"], cd["title"]])
-				self.CDDBDialog = CDDBDialog(self.mainWindow, cds)
-				if self.CDDBDialog.selected_cd:
-					if self.CDDBDialog.selected_cd == "reject":
-						self.TagBar.entry_tag("Unknown album", "Unknown artist", "Year", "Unknown genre")
-						for i in range(self.audioCD.disc_id[1]):
-							n = "%.02d" %(i + 1)
-							self.set_status("Append " + "Track " + n + "/" + str(self.audioCD.disc_id[1]))
-							af = AudioFile("cdda://" + n, n)
-							af.set_tag("track_number", n)
-							af.set_tag("title", "Track " + n)
-							#af.frame = self.audioCD.disc_id[i+2]
-							af.set_filename("Track " + n)
-							self.audioFileList.append(af)
-							self.FileTable.append(self.audioFileList)
-					else:
-						selected_cd = int(self.CDDBDialog.selected_cd)
-						self.audioCD.get_CDDB_tag(self.audioCD.query_status, self.audioCD.query_info[selected_cd])
-
-						self.TagBar.entry_tag(self.audioCD.album, self.audioCD.artist, self.audioCD.year, self.audioCD.cddb_genre)
-						self.CDdata = {"album": self.audioCD.album,
-								"artist": self.audioCD.artist,
-								"year": self.audioCD.year,
-								"genre": self.audioCD.cddb_genre
-								}
-						for song in self.audioCD.song_list:
-							self.set_status("Append " + "Track " + str("%.02d" %(song["track_number"])) + "/" + str(self.audioCD.disc_id[1]))
-							af = AudioFile("cdda://" + str("%.02d" %(song["track_number"])), song["track_number"])
-							af.set_tag("track_number", "%.02d" %(song["track_number"]))
-							af.set_tag("title", song["title"])
-							af.set_tag("artist", self.audioCD.artist)
-							af.set_tag("album", self.audioCD.album)
-							af.set_tag("year", self.audioCD.year)
-							af.set_tag("genre", self.audioCD.cddb_genre)
-							af.set_filename("Track " + str("%.02d" %(song["track_number"])))
-							print af.get_tags_as_dict()
-							self.audioFileList.append(af)
-							self.FileTable.append(self.audioFileList)
-				else:
-					return
-
+			self.TagBar.entry_tag(
+					tags_list[0]["album"],
+					tags_list[0]["artist"],
+					tags_list[0]["year"],
+					tags_list[0]["genre"])
+				
+			for tags in tags_list:
+				self.set_status("Append " + "Track " + str(tags["n"]) + "/" + str(len(tags_list)))
+				af = AudioFile(tags["uri"], tags["n"])
+				af.set_tag("track_number", tags["track-number"])
+				af.set_tag("title", tags["title"])
+				af.set_tag("artist", tags["artist"])
+				af.set_tag("album", tags["album"])
+				af.set_tag("year", tags["year"])
+				af.set_tag("genre", tags["genre"])
+				af.set_filename("Track " + tags["track-number"])
+				print af.get_tags_as_dict()
+				self.audioFileList.append(af)
+				self.FileTable.append(self.audioFileList)
+				
 			self.set_status()
-			self.audioCD = None
 			self.set_sensitive(True)
 			self.cmdRip.set_sensitive(True)
 
@@ -716,8 +678,8 @@ class classXAudioCopy:
 			self.cmdConvert.set_sensitive(False)
 			self.menuConvert.set_sensitive(False)
 		else:
-			self.audioCD = None
 			return
+
 
 	# Evento che cambia i dati del CD su modifica utente
 	def on_entry_changed(self, *args):

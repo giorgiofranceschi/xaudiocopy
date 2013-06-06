@@ -55,12 +55,13 @@ class CDDBDialog:
 		#            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		self.dlg = gtk.Dialog("Select CD from freeDB...", self.main_window,
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
-		self.dlg.set_default_size(410, 60)
+		self.dlg.set_default_size(410, 410)
 		self.dlg.set_border_width(5)
-
+		self.dlg.vbox.set_homogeneous(True)
 
 		# Box della finestra
 		self.vbox = self.dlg.vbox
+		self.dlg.vbox.add(self.vbox)
 		self.vbox.set_spacing(2)
 		self.vbox.set_homogeneous(False)
 
@@ -72,7 +73,7 @@ class CDDBDialog:
 		self.labelCDDB = gtk.Label("Several exact matches found. Plese select your CD")
 		self.labelCDDB.set_alignment(0, 0.5)
 		self.labelCDDB.set_padding(10, 10)
-		self.dlg.vbox.add(self.labelCDDB)
+		self.vbox.add(self.labelCDDB)
 		self.labelCDDB.show()
 
 		# TreeView (posizione 2 nella VBox)
@@ -140,5 +141,5 @@ class CDDBDialog:
 		self.dlg.destroy()
 
 	def on_Cancel(self, *args):
-
+		self.selected_cd = None
 		self.dlg.destroy()
