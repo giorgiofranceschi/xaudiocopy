@@ -70,7 +70,7 @@ class CDDBDialog:
 		scroll.show()
 
 		# Etichetta (posizione 1 nella VBox)
-		self.labelCDDB = gtk.Label("Several exact matches found. Plese select your CD")
+		self.labelCDDB = gtk.Label("Several exact matches found. Please select your CD")
 		self.labelCDDB.set_alignment(0, 0.5)
 		self.labelCDDB.set_padding(10, 10)
 		self.vbox.add(self.labelCDDB)
