@@ -54,26 +54,29 @@ class MBDialog:
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
 		self.dlg.set_default_size(610, 410)
 		self.dlg.set_border_width(5)
-		self.dlg.vbox.set_homogeneous(True)
-
-		# Box della finestra
-		self.vbox = self.dlg.vbox
-		self.dlg.vbox.add(self.vbox)
-		self.vbox.set_spacing(2)
-		self.vbox.set_homogeneous(False)
+		self.dlg.vbox.set_homogeneous(False)
 
 		scroll = gtk.ScrolledWindow()
-		self.vbox.add(scroll)
+		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.dlg.vbox.pack_start(scroll, expand=True)
 		scroll.show()
 
-		# Etichetta (posizione 1 nella VBox)
-		self.labelSeveral = gtk.Label("Several exact matches found. Plese select your CD")
+		# Etichetta
+		self.labelSeveral = gtk.Label("Several exact matches found. Please select your CD.")
 		self.labelSeveral.set_alignment(0, 0.5)
 		self.labelSeveral.set_padding(10, 10)
-		self.vbox.add(self.labelSeveral)
-		self.labelSeveral.show()
+		self.dlg.vbox.pack_start(self.labelSeveral, expand=False)
+		#self.labelSeveral.show()
 
-		# TreeView (posizione 2 nella VBox)
+		# Etichetta
+		self.labelDiscID = gtk.Label("""<span>{0}<i>{1}</i></span>""".format("Several exact matches found. Please select your CD.\nMusicBrainz Disc ID: ", MB_releases[0]["disc-id"]))
+		self.labelDiscID.set_alignment(0, 0.5)
+		self.labelDiscID.set_padding(10, 10)
+		self.labelDiscID.set_use_markup(True)
+		self.dlg.vbox.pack_start(self.labelDiscID, expand=False)
+		self.labelDiscID.show()
+
+		# TreeView
 		self.tvSelectCD = gtk.TreeView()
 		self.tvSelectCD.connect("row-activated", self.on_CD_selected)
 		scroll.add(self.tvSelectCD)
@@ -127,7 +130,7 @@ class MBDialog:
 					cd["catalog"][0]["label"] + " " +cd["catalog"][0]["catalog-number"],
 					cd["date"],
 					cd["country"],
-					cd["disc-id"]])
+					cd["album-id"]])
 		# Attiva e visualizza la finestra di dialogo
 		self.dlg.run()
 
