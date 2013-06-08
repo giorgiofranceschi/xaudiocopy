@@ -101,7 +101,7 @@ class MBReader():
 				from musicbrainzngs import musicbrainz, ResponseError, NetworkError
 			except ImportError as imperr:
 				print "musicbrainzngs not available"
-				self.error = ("100", "Import error", imperr)
+				self.error = (100, "Import error: musicbrainzngs not available", imperr)
 				raise
 
 			disc_id = self.get_MB_disc_id()
@@ -117,7 +117,8 @@ class MBReader():
 			try:
 				musicbrainz.set_useragent("xaudiocopy", "0.02.1")
 			except:
-				self.error("101", "User agent error", "")
+				print "MusicBrainz user agent error"
+				self.error = (101, "MusicBrainz user agent error", "")
 				raise
 			# Scarica le release del disco in base al Disc ID
 			try:
@@ -126,15 +127,15 @@ class MBReader():
 			except ResponseError as reserr:
 				if reserr.cause.code == 404:
 					print "Disc not found", reserr
-					self.error = (reserr.cause.code, "Disc not found", reserr)
+					self.error = (int(reserr.cause.code), "Disc not found", reserr)
 					raise
 				else:
-					print "Bad response from the MB server", reserr
-					self.error = (reserr.cause.code, "Bad response from the MB server", reserr)
+					print "Bad response from the MusicBrainz server", reserr
+					self.error = (int(reserr.cause.code), "Bad response from the MB server", reserr)
 					raise
 			except NetworkError as neterr:
 				print "Network connection error", neterr
-				self.error = ("402", "Network connection error", neterr)
+				self.error = (402, "Network connection error", neterr)
 				raise
 				""" Eccezione non gestita nella versione 0.2 di musicbrainzngs
 			except AuthenticationError as auterr:
@@ -224,7 +225,7 @@ class MBReader():
 		try:
 			musicbrainz.set_useragent("xaudiocopy", "0.02.1")
 		except:
-			self.error("101", "User agent error", "")
+			self.error(101, "User agent error", "")
 			raise
 		# Scarica la release del disco in base all'ID
 		try:
@@ -233,15 +234,15 @@ class MBReader():
 		except ResponseError as reserr:
 			if reserr.cause.code == 404:
 				print "Disc not found", reserr
-				self.error = (reserr.cause.code, "Disc not found", reserr)
+				self.error = (int(reserr.cause.code), "Disc not found", reserr)
 				raise
 			else:
 				print "Bad response from the MB server", reserr
-				self.error = (reserr.cause.code, "Bad response from the MB server", reserr)
+				self.error = (int(reserr.cause.code), "Bad response from the MB server", reserr)
 				raise
 		except NetworkError as neterr:
 			print "Network connection error", neterr
-			self.error = ("402", "Network connection error", neterr)
+			self.error = (402, "Network connection error", neterr)
 			raise
 			""" Eccezione non gestita nella versione 0.2 di musicbrainzngs
 		except AuthenticationError as auterr:

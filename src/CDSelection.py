@@ -54,7 +54,9 @@ class CDSelection:
 		
 		self.main_window = main_window		
 		self.CDdata = None
+		self.error = None
 
+		# Prova con MusicBrainz
 		try:
 			self.audioCD = MBReader()
 		except:
@@ -71,12 +73,28 @@ class CDSelection:
 			try:
 				MB_releases = self.audioCD.get_MB_releases()
 			except:
-				numerr, msg, err = self.audioCD.error	
-				if numerr == "402":
-					print self.audioCD.error
-					MB_releases = None
+				self.error = self.audioCD.error
+				print "Errore. ", self.error
+				numerr, errmsg, err = self.audioCD.error
+				# Errore di rete
+				if numerr == 402:
+					msg = "No connection to the internet is current available or no server response..."
+					self.dlg = WarningDialog(self.main_window, 
+						NAME + " - Warning", msg)
+					return
 				else:
-					raise
+					# Disco non trovato
+					if numerr == 404:
+						msg = "Disco not found in the MusicBrainz's data base. Try with FreeDB..."
+					# musicbrainzngs non disponibile, user agent error
+					elif numerr in [7, 100, 101, 401]:
+						msg = errmsg
+					else:
+						msg = "MusicBrainz error"
+						raise
+					self.dlg = WarningDialog(self.main_window, 
+						NAME + " - Warning", msg)
+					return
 
 			if MB_releases == None:				
 				for i in range(self.audioCD.num_tracks):

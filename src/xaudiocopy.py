@@ -640,12 +640,16 @@ class classXAudioCopy:
 			self.on_Stop()
 			
 			#tags_list = self.CDSelection.select_CD_from_CDDB()
-			tags_list = self.CDSelection.select_CD_from_MB()
-
-			if self.CDSelection.audioCD.error == "402":
-				self.set_status("No connection to the internet is current available or no server response...")
-				self.dlg = WarningDialog(self.mainWindow, 
-						NAME + " - Warning","No connection to the internet is current available or no server response...")
+			try:
+				tags_list = self.CDSelection.select_CD_from_MB()
+			except:
+				numerr, errmsg, err = self.CDSelection.error
+				if numerr == 402:
+					msgneterr = "No connection to the internet is current available or no server response..."
+					self.set_status()
+					self.dlg = WarningDialog(self.mainWindow, 
+						NAME + " - Warning", msgneterr)
+				return
 
 			if tags_list == None:
 				return
