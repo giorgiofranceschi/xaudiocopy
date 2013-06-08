@@ -85,19 +85,26 @@ class CDSelection:
 				else:
 					# Disco non trovato
 					if numerr == 404:
-						msg = "Disco not found in the MusicBrainz's data base. Try with FreeDB..."
+						msg = "Disc not found in the MusicBrainz's data base. Try with FreeDB..."
 					# musicbrainzngs non disponibile, user agent error
-					elif numerr in [7, 100, 101, 401]:
-						msg = errmsg
+					elif numerr in [7, 100, 101, 400, 401]:
+						msg = errmsg + " Try with FreeDB..."
 					else:
 						msg = "MusicBrainz error"
 						raise
 					self.dlg = WarningDialog(self.main_window, 
 						NAME + " - Warning", msg)
-					return
+
+					# Se non funziona con MusicBrainz prova con FreeDB
+					try:
+						self.audioCD = CDDBReader()
+						tags_list_CDDB = self.select_CD_from_CDDB()
+						return tags_list_CDDB
+					except:
+						raise
 
 			if MB_releases == None:				
-				for i in range(self.audioCD.num_tracks):
+				for i in range(self.audioCD.get_num_tracks()):
 					n = "%.02d" %(i + 1)					
 					tags = {
 						"n" : i + 1,
@@ -116,7 +123,7 @@ class CDSelection:
 
 				if self.MBDialog.selected_cd:
 					if self.MBDialog.selected_cd == "reject":
-						for i in range(self.audioCD.num_tracks):
+						for i in range(self.audioCD.get_num_tracks()):
 							n = "%.02d" %(i + 1)
 							tags = {
 								"n" : i + 1,
@@ -181,6 +188,7 @@ class CDSelection:
 				if not type(self.audioCD.query_info).__name__ == "list":
 					print "NON E' UNA LISTA"
 					self.audioCD.query_info = [self.audioCD.query_info]
+					print self.audioCD.query_info
 				else:
 					print "E'UNA LISTA"
 				cds = []

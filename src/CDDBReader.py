@@ -61,7 +61,7 @@ class CDDBReader():
                 pass
 
     def get_CDDB_tag(self, query_status, query_info):
-
+	print "QUERY INFO: ", query_info
         if self.is_audio_cd:
             read_status, read_info = CDDB.read(query_info['category'], query_info['disc_id'])
             print "read status: ", read_status
@@ -87,7 +87,10 @@ class CDDBReader():
                 if read_info['DTITLE']:
                     disc_title = read_info['DTITLE']
                 else:
-                    disc_title = query_info[0]['title']
+		    try:
+                        disc_title = query_info[0]['title']
+                    except:
+			disc_title = query_info['title']
                 self.artist, self.album = re.split(" / ", disc_title)
                 if "," in self.artist:
                     a, b = re.split(", ", self.artist)
@@ -100,7 +103,10 @@ class CDDBReader():
                 if read_info['DGENRE']:
                     self.cddb_genre = read_info['DGENRE']
                 else:
-                    self.cddb_genre = query_info[0]['category']
+		    try:
+                        self.cddb_genre = query_info[0]['category']
+                    except:
+			self.cddb_genre = query_info['category']
             
             elif read_status in [401, 402, 403, 409, 417]:
                 self.error = read_status

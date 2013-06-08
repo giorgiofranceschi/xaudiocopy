@@ -56,13 +56,19 @@ class MBReader():
 			# Ordina i dati della TOC nel formato adatto a MusicBrainz
 			self.__MB_full_toc = [first, last, frames[-1]] + frames[:-1]
 			# Numero di tracce
-			self.num_tracks = last
+			self.__num_tracks = last
 		cdaudio.close()
 
 	# Restituisce la TOC del disco
 	def get_MB_full_toc(self):
-		return self.__MB_full_toc
-		
+		if self.__MB_full_toc:
+			return self.__MB_full_toc
+
+	# Restituisce il numero di tracce del disco
+	def get_num_tracks(self):
+		if self.__num_tracks:
+			return self.__num_tracks
+
 	# Determina il Disc ID di MusicBrainz a partire dalla TOC
 	#TODO - Dischi ibridi e multisessione
 	def get_MB_disc_id(self):
@@ -126,21 +132,25 @@ class MBReader():
 					includes=["artists", "recordings", "release-groups", "labels"])
 			except ResponseError as reserr:
 				if reserr.cause.code == 404:
-					print "Disc not found", reserr
-					self.error = (int(reserr.cause.code), "Disc not found", reserr)
+					print "Disc not found.", reserr
+					self.error = (int(reserr.cause.code), "Disc not found.", reserr)
+					raise
+				elif reserr.cause.code == 400:
+					print "Bad request to the MusicBrainz server.", reserr
+					self.error = (400, "Bad response from the MB server.", reserr)
 					raise
 				else:
-					print "Bad response from the MusicBrainz server", reserr
-					self.error = (int(reserr.cause.code), "Bad response from the MB server", reserr)
+					print "Bad response from the MusicBrainz server.", reserr
+					self.error = (int(reserr.cause.code), "Bad response from the MB server.", reserr)
 					raise
 			except NetworkError as neterr:
-				print "Network connection error", neterr
-				self.error = (402, "Network connection error", neterr)
+				print "Network connection error.", neterr
+				self.error = (402, "Network connection error.", neterr)
 				raise
 				""" Eccezione non gestita nella versione 0.2 di musicbrainzngs
 			except AuthenticationError as auterr:
-				print "Receved a HTTP 401 response while accessing a protected resource"
-				self.error = (auterr, "Receved a HTTP 401 response while accessing a protected resource", auterr)		
+				print "Receved a HTTP 401 response while accessing a protected resource."
+				self.error = (auterr, "Receved a HTTP 401 response while accessing a protected resource.", auterr)		
 				raise"""
 			i = 0
 			# Lista che contiene tutte le release
