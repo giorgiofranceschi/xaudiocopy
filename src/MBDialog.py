@@ -18,13 +18,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-
-import os
-import sys
-import re
-import subprocess
-import time, datetime
-
 try:
 	import pygtk
 	pygtk.require("2.0")
@@ -39,7 +32,7 @@ except:
 	sys.exit(1)
 
 
-### Finestra di dialogo per la selezione dei CD da freeDB ###
+### Finestra di dialogo per la selezione dei CD da MusicBrainz ###
 class MBDialog:
 
 	# Costruttore della classe
@@ -60,13 +53,6 @@ class MBDialog:
 		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.dlg.vbox.pack_start(scroll, expand=True)
 		scroll.show()
-
-		# Etichetta
-		self.labelSeveral = gtk.Label("Several exact matches found. Please select your CD.")
-		self.labelSeveral.set_alignment(0, 0.5)
-		self.labelSeveral.set_padding(10, 10)
-		self.dlg.vbox.pack_start(self.labelSeveral, expand=False)
-		#self.labelSeveral.show()
 
 		# Etichetta
 		self.labelDiscID = gtk.Label("""<span>{0}<i>{1}</i></span>""".format("Several exact matches found. Please select your CD.\nMusicBrainz Disc ID: ", MB_releases[0]["disc-id"]))

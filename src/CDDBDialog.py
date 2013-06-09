@@ -18,13 +18,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-
-import os
-import sys
-import re
-import subprocess
-import time, datetime
-
 try:
 	import pygtk
 	pygtk.require("2.0")
@@ -39,7 +32,7 @@ except:
 	sys.exit(1)
 
 
-### Finestra di dialogo per la selezione dei CD da freeDB ###
+### Finestra di dialogo per la selezione dei CD da FreeDB ###
 class CDDBDialog:
 
 	# Costruttore della classe
@@ -57,26 +50,21 @@ class CDDBDialog:
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
 		self.dlg.set_default_size(410, 410)
 		self.dlg.set_border_width(5)
-		self.dlg.vbox.set_homogeneous(True)
-
-		# Box della finestra
-		self.vbox = self.dlg.vbox
-		self.dlg.vbox.add(self.vbox)
-		self.vbox.set_spacing(2)
-		self.vbox.set_homogeneous(False)
+		self.dlg.vbox.set_homogeneous(False)
 
 		scroll = gtk.ScrolledWindow()
-		self.vbox.add(scroll)
+		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.dlg.vbox.pack_start(scroll, expand=True)
 		scroll.show()
 
-		# Etichetta (posizione 1 nella VBox)
+		# Etichetta
 		self.labelCDDB = gtk.Label("Several exact matches found. Please select your CD")
 		self.labelCDDB.set_alignment(0, 0.5)
 		self.labelCDDB.set_padding(10, 10)
-		self.vbox.add(self.labelCDDB)
+		self.dlg.vbox.pack_start(self.labelCDDB, expand=False)
 		self.labelCDDB.show()
 
-		# TreeView (posizione 2 nella VBox)
+		# TreeView
 		self.tvSelectCD = gtk.TreeView()
 		self.tvSelectCD.connect("row-activated", self.on_CD_selected)
 		scroll.add(self.tvSelectCD)
