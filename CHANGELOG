@@ -8,7 +8,7 @@
 
 2013-05-31 - ver. 0.02.1
 
-	* Risolti alcuni bug introdotti nella versione precedente con l'aggiornamento di morituri:
+	* BUGFIX - Risolti alcuni bug introdotti nella versione precedente con l'aggiornamento di morituri:
 	- conversione dei file che non veniva effettuata perché il Converter copiava i file cambiando solo l'estensione;
 	- playlist non create per la mancanza di "/CD" nel path di salvataggio.
 
@@ -30,7 +30,7 @@
 
 2013-06-06 - ver. 0.02.3
 
-	* Creata fienstra di dialogo per MusicBrainz
+	* Creata finestra di dialogo per MusicBrainz
 	* Creata classe separata per il caricamento dei CD
 	* Ora la ricerca dei tag per i CD avviene da MusicBrainz (predefinito)
 
@@ -38,4 +38,12 @@
 	* Rendere FreeDB la seconda scelta
 	* CD di artisti vari e CD ibridi
 	* Sistemare MBDialog e CDDBDialog (vbox, ecc.)
+
+2013-06-10 - ver. 0.02.4
+
+	* MusicBrainz predefinito per la scelta dei tag dei CD. Usa FreeDB solo se la ricerca su MusicBrainz fallisce.
+	* Finestre di dialogo per la scelta da MusicBrainz e FreeDB riviste e armonizzate.
+	* Gestione errori da MusicBrainz migliorata; quando non funziona prova FreeDB.
+	* BUGFIX - Riproducendo CD audio a volte la query peril tempo di riproduzione falliva
+	- Risolto il bug incapsulando la query in blocco try-except. Se la query fallisce aspetta 0,5 sec.
 
