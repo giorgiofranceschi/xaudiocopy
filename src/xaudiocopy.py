@@ -402,7 +402,10 @@ class classXAudioCopy:
 
 		time.sleep(0.2)
 		while play_thread_id == self.player.play_thread_id:
-			pos_int = self.player.player.query_position(gst.FORMAT_TIME, None)[0]
+			# A volte la query fallisce
+			try:
+				pos_int = self.player.player.query_position(gst.FORMAT_TIME, None)[0]
+			except: continue
 			pos_str = self.player.convert_ns(pos_int)
 			if play_thread_id == self.player.play_thread_id:
 				gtk.gdk.threads_enter()
