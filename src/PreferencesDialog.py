@@ -804,7 +804,7 @@ class PreferencesDialog:
 			self.labelNotAvailable.set_padding(0, 2)
 			self.labelNotAvailable.set_line_wrap(True)
 			self.labelNotAvailable.set_justify(gtk.JUSTIFY_LEFT)
-			self.labelNotAvailable.set_label("""<span size='x-small'>""" + notavailablestring + """ not available. Please install the program. Try using your packet manager (e.g. 'apt-get install <i>packet-name</i>') or visit the program website.</span>""")
+			self.labelNotAvailable.set_label("""<span size='x-small'>""" + notavailablestring + """ not available. Please install the program. Try using your packages manager (e.g. 'apt-get install <i>package-name</i>') or visit the program website.</span>""")
 			self.labelNotAvailable.show()
 			separator = gtk.HSeparator()
 			self.vboxNotAv.pack_end(separator, expand = False)

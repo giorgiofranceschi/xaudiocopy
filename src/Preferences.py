@@ -27,7 +27,7 @@ import ConfigParser
 # About
 ICON = "../data/xaudiocopy.png"
 NAME = "X Audio Copy"
-VERSION = "0.02.5 alpha"
+VERSION = "0.02.5p alpha"
 COMMENTS = "GTK and GNOME application for playing audio files, ripping CD-Audio and encoding in lossy and lossless audio formats."
 COPYRIGHT_OWNER = "Giorgio Franceschi"
 COPYRIGHT_YEAR = "2010-2013"

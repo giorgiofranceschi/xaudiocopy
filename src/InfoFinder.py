@@ -34,9 +34,10 @@ from Preferences import XACHOME
 class InfoFinder:
 
 	# Costruttore della classe
-	def __init__(self, uri):
+	def __init__(self, uri, gst_type):
 
 		self.__uri = uri
+		self.__gst_type = gst_type
 		self.__taglist = {}
 
 		# Pipeline di gstreamer
@@ -112,7 +113,12 @@ class InfoFinder:
 			print "ESISTE"
 			w = wave.open(XACHOME + "/tempfile.wav")
 			self.__n_channels = w.getnchannels()
-			self.__sampwidth_B = w.getsampwidth()
+			# TODO - Scoprire perché sampwidth è 4 per mp3, ogg, ecc.
+			#        Dipende dalla conversione di gst? Coi CD funziona.
+			if self.__gst_type == "audio/x-raw-int":
+				self.__sampwidth_B = w.getsampwidth()
+			else:
+				self.__sampwidth_B = w.getsampwidth() / 2
 			self.__sampwidth_b = self.__sampwidth_B * 8
 			self.__framerate = w.getframerate()
 			self.__n_frames = w.getnframes()

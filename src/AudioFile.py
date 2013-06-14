@@ -231,7 +231,7 @@ class AudioFile:
 			self.__n_frames = w.getnframes()
 			w.close()
 		else:
-			infoFinder = InfoFinder(self.__uri)
+			infoFinder = InfoFinder(self.__uri, self.__gst_type)
 			info = infoFinder.get_info()
 			self.__n_channels = info["n_channels"]
 			self.__sampwidth_B = info["sampwidth_B"]
@@ -239,11 +239,11 @@ class AudioFile:
 			self.__framerate = info["framerate"]
 			self.__n_frames = info["n_frames"]
 
-			print "n_channels: ", self.__n_channels
-			print "sampwidth_B: ",self.__sampwidth_B
-			print "sampwidth_b: ", self.__sampwidth_b
-			print "framerate: ", self.__framerate
-			print "n_frames: ", self.__n_frames
+		print "n_channels: ", self.__n_channels
+		print "sampwidth_B: ",self.__sampwidth_B
+		print "sampwidth_b: ", self.__sampwidth_b
+		print "framerate: ", self.__framerate
+		print "n_frames: ", self.__n_frames
 
 		# Se gstreamer non è riuscito a calcolare la durata del brano
 		if self.__duration == None:
