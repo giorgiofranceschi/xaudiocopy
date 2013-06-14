@@ -1024,6 +1024,7 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 
 		# Seleziona la risposta
 		response = FileChooser.run()
+		FileChooser.hide()
 		if response == gtk.RESPONSE_OK:
 
 			if FileChooser.is_folder:
@@ -1035,49 +1036,48 @@ visit http://thomas.apestaart.org/morituri/trac/wiki''')
 				# Restituisce una lista con tutti i file
 				walk_filelist = []
 				for dirpath, subdir, filenames in walk:
-					print "dirpath: ", dirpath
-					print "dirnames: ", subdir
 					for f in filenames:
 						f = os.path.join(dirpath, f)
 						walk_filelist.append(f)
-					print "listone: ", walk_filelist
 
 				# Aggiunge l'uri completo ad ogni file
 				furi = []
 				for f in walk_filelist:
 					for ext in fileext:
-						if f[-4:] == ext:
+						if f.endswith(ext):
 							furi.append("file://" + str(f))
 				for l in furi:
-					print "fpathList: ", l
-				self.audioFileList.add_list(furi)
-
+					af = AudioFile(l)
+					self.audioFileList.append(af)
+					self.FileTable.append(self.audioFileList)
 			else:
 				# Se il percorso restituito è un file o un elenco di file
-				filenames = []
-				print FileChooser.get_filenames()[0]
-				if FileChooser.get_filenames():
-					for f in FileChooser.get_filenames():
-						# Se il percorso restituito è una plaulist "*.m3u"
-						if f[-4:] == ".m3u":
+				furi = []
+				filenames = FileChooser.get_filenames()
+				if filenames:
+					for f in filenames:
+						# Se il percorso restituito è una playlist "*.m3u"
+						if f.endswith(".m3u"):
 							plist = open(f, "rb").readlines()
 							for finlist in plist:
 								if not "#EXT" in finlist:
 									print re.compile("\n").sub("", finlist)
 									print "PERCORSO FILE IN PLAYLIST", "file://" + FileChooser.get_current_folder() + "/" + re.compile("\n").sub("", finlist)
-									filenames.append("file://" + FileChooser.get_current_folder() + "/" + re.compile("\n").sub("", finlist))
+									furi.append("file://" + FileChooser.get_current_folder() + "/" + re.compile("\n").sub("", finlist))
 						else:
-							filenames.append("file://" + f)
-				self.audioFileList.add_list(filenames)
+							furi.append("file://" + f)
+					for l in furi:
+						af = AudioFile(l)
+						self.audioFileList.append(af)
+						self.FileTable.append(self.audioFileList)
 
 			# Scrive i file nella tabella
-			self.FileTable.append(self.audioFileList)
+			#self.FileTable.append(self.audioFileList)
 
 		elif response == gtk.RESPONSE_CANCEL:
 			print 'Closed, no files selected'
 
 		self.prefs.set_option("last-used-folder", FileChooser.get_current_folder())
-		FileChooser.hide()
 		FileChooser.destroy()
 		self.set_status()
 

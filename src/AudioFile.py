@@ -108,7 +108,14 @@ class AudioFile:
 		if self.__folderuri == "cdda:":
 			self.__foldername = "Audio CD"
 			self.__filepath = self.__uri
-		elif self.__folderuri[:7] == "file://":
+		elif ("cdda:" in self.__folderuri) and self.__filename.endswith(".wav"):
+			self.__folderuri = "cdda:"
+			res = re.compile('\d+').findall(self.__filename)
+			self.__uri = self.__folderuri + "//" + "%.02d" % (int(res[0]))
+			self.__foldername = "Audio CD"
+			self.__filename = "Track " + "%.02d" % (int(res[0])) + ".wav"
+			self.__filepath = self.__uri
+		elif self.__folderuri.startswith("file://"):
 			self.__foldername = self.__folderuri[7:]
 			self.__filepath = self.__foldername + "/" + self.__filename
 		else:
@@ -201,7 +208,7 @@ class AudioFile:
 			print "Mime type non valido"
 
 		# Trova il tipo di file con gstreamer
-		if self.__folderuri == "cdda:":
+		if "cdda:" in self.__folderuri:
 			self.__gst_type = "audio/x-raw-int"
 		else:
 			typeFinder = TypeFinder(self.__uri)
@@ -269,7 +276,7 @@ class AudioFile:
 			# "Track nn.wav" oppure "Track nn.cda" oppure
 			# "nn - Artist - Title.*" o simili.
 			for ext in fileext:
-				if self.__filename[-4:] == ext:
+				if self.__filename.endswith(ext):
 					print "self.__filename[-4:]: ", self.__filename[-4:]
 					if re.compile('\d+' + ext).findall(self.__filepath):
 						res = re.compile('\d+' + ext).findall(self.__filepath)

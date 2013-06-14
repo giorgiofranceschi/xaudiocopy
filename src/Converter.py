@@ -118,13 +118,13 @@ class Converter(threading.Thread):
 
 			# Se usa gstreamer per la conversione
 			elif not bool(int(self.prefs.get_option("use-external-encoder"))):
+				print "INTERNAL ENCODER"
 				# Estrae le opzioni per la conversione
-				print self.Options(af, self.prefs)
+				#print self.Options(af, self.prefs)
 				format, mode, qual, bitrate, save_path, output_file_name, tagsv1, tagsv2 = self.Options(af, self.prefs)
 				# Pipeline
-				print input_path, format, mode, qual, bitrate, save_path + "/" + output_file_name
+				print "Pipeline: ", input_path, format, mode, qual, bitrate, save_path + "/" + output_file_name
 				converter_pipe = Pipeline(input_path, format, mode, qual, bitrate, save_path + "/" + output_file_name)
-
 				# Rimane nel ciclo finché la pipeline non è finita
 				while 1:
 					state, pending, timeout = converter_pipe.pipe.get_state()
@@ -158,16 +158,16 @@ class Converter(threading.Thread):
 					else:
 						self.savepath = save_path
 					self.playlistname = af_output.get_tag("artist") + " - " + af_output.get_tag("album")
-					self.listsongs.append("#EXTINF:" + str(int(af_output.get_duration())) + "," + af_output.get_tag("artist") + " - " + af_output.get_tag("title") + "\n")
+					self.listsongs.append("#EXTINF:" + str(int(af_output.get_duration())) + ", " + af_output.get_tag("artist") + " - " + af_output.get_tag("title") + "\n")
 					if "/CD" in save_path:
 						self.listsongs.append(save_path[save_path.index("/CD") + 1:] + "/" + af_output.get_filename() + "\n")
 					else:
-						self.listsongs.append(save_path + "/" + af_output.get_filename() + "\n")
+						self.listsongs.append(af_output.get_filename() + "\n")
 				self.work_complete = True
 
 			# Se usa un encoder esterno. Prima decodifica il file.
 			elif bool(int(self.prefs.get_option("use-external-encoder"))) and self.Options(af, self.prefs):
-
+				print "EXTERNAL ENCODER"
 				# Estrae le opzioni per la conversione
 				opt_string, input_path, output_path, tagsv1, tagsv2 = self.Options(af, self.prefs)
 
@@ -348,6 +348,7 @@ class Converter(threading.Thread):
 				mode, qual, bitrate, save_path, output_file_name,
 				bool(int(prefs.get_option("write-ID3v1"))),
 				bool(int(prefs.get_option("write-ID3v2")))]
+			print "REQUEST: ", request
 
 			return request
 
