@@ -41,9 +41,18 @@
 
 2013-06-10 - ver. 0.02.4
 
+	Modifiche
 	* MusicBrainz predefinito per la scelta dei tag dei CD. Usa FreeDB solo se la ricerca su MusicBrainz fallisce.
 	* Finestre di dialogo per la scelta da MusicBrainz e FreeDB riviste e armonizzate.
 	* Gestione errori da MusicBrainz migliorata; quando non funziona prova FreeDB.
 	* BUGFIX - Riproducendo CD audio a volte la query peril tempo di riproduzione falliva
 	- Risolto il bug incapsulando la query in blocco try-except. Se la query fallisce aspetta 0,5 sec.
 
+2013-06-14 - ver. 0.02.5
+
+	Modifiche
+	* La finestre di scelta dei file ora si chiude prima di caricare i file. I file vengono caricati nella finestra uno alla volta.
+	* BUGFIX - Convertendo con gst la playlist contiene il percorso assoluto
+	- Risolto eliminando il percorso assoluto del file.
+	* BUGFIX - Con la nuova posizione dei CD in "/run/user/.../gvfs/cdda:host=sr0" gst a volte impazzisce perché l'uri non è canonico caricando i file singoli dalla finestra di scelta dei file.
+	- Risolto trasformando l'uri e il nome file in "ccda://nn" come quando carica i CD completi i AudioFile. Da approfondire.
