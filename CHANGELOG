@@ -20,24 +20,11 @@
 	* La finestra di dialogo compare anche se c'è una sola corrispondenza su FreeDB
 	* Aggiunto un pulsante che permette di rifiutare i tag proposti da FreeDB
 	
-	Da completare
-	* Aggiunta una classe per la gestione dei tag dei CD prelevati da MusicBrainz (richiede musicbrainzngs già presente tra le dipendenze di morituri)
-	
-	TODO
-	* Creare una classe separata per il codice nella funzione on_CD (caricamento del CD e riempimento dei tag)
-	* Creare finestra di dialogo per MusicBrainz
-	* Rendere MusicBrainz predefinito con FreeDB di riserva (mettere opzione?)
-
 2013-06-06 - ver. 0.02.3
 
 	* Creata finestra di dialogo per MusicBrainz
 	* Creata classe separata per il caricamento dei CD
 	* Ora la ricerca dei tag per i CD avviene da MusicBrainz (predefinito)
-
-	TODO
-	* Rendere FreeDB la seconda scelta
-	* CD di artisti vari e CD ibridi
-	* Sistemare MBDialog e CDDBDialog (vbox, ecc.)
 
 2013-06-10 - ver. 0.02.4
 
@@ -56,3 +43,10 @@
 	- Risolto eliminando il percorso assoluto del file.
 	* BUGFIX - Con la nuova posizione dei CD in "/run/user/.../gvfs/cdda:host=sr0" gst a volte impazzisce perché l'uri non è canonico caricando i file singoli dalla finestra di scelta dei file.
 	- Risolto trasformando l'uri e il nome file in "ccda://nn" come quando carica i CD completi i AudioFile. Da approfondire.
+
+
+TODO
+* CD di artisti vari e CD ibridi in MusicBrainz / FreeDB
+* Semplificare TypeFinder senza gst
+* Semplificare InfoFinder senza gst
+* Semplificare TagFinder senza gst
