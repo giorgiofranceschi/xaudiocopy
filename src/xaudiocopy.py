@@ -1167,6 +1167,8 @@ class FileTable:
 	# Costruttore della classe
 	def __init__(self, builderXAC):
 
+		import pango
+
 		# Collega il TreeView
 		self.tvFileList = builderXAC.get_object("trvFileList")
 
@@ -1185,43 +1187,47 @@ class FileTable:
 		cell = gtk.CellRendererText()
 		cell.set_property("editable", True)
 		column_track = gtk.TreeViewColumn("Track", cell, text=0)
-		column_track.set_min_width(62)
+		column_track.set_min_width(45)
 		columns.append(column_track)
 		cell.connect("edited", self.on_edited_cell, (self.listStore, 0))
 
 		# Colonna "Artist"
 		cell = gtk.CellRendererText()
 		cell.set_property("editable", True)
+		cell.set_property("ellipsize", pango.ELLIPSIZE_END)
 		column_artist = gtk.TreeViewColumn("Artist", cell, text=1)
-		column_artist.set_min_width(130)
+		column_artist.set_min_width(135)
 		columns.append(column_artist)
 		cell.connect("edited", self.on_edited_cell, (self.listStore, 1))
 
 		# Colonna "Title"
 		cell = gtk.CellRendererText()
 		cell.set_property("editable", True)
-		column_title = gtk.TreeViewColumn("Title", cell, text=2)
-		column_title.set_min_width(130)
+		cell.set_property("ellipsize", pango.ELLIPSIZE_END)
+		column_title = gtk.TreeViewColumn("Title", cell, markup=2)
+		column_title.set_min_width(160)
 		columns.append(column_title)
 		cell.connect("edited", self.on_edited_cell, (self.listStore, 2))
 
 		# Colonna "Album"
 		cell = gtk.CellRendererText()
 		cell.set_property("editable", True)
-		column_album = gtk.TreeViewColumn("Album", cell, text=3)
-		column_album.set_min_width(130)
+		cell.set_property("ellipsize", pango.ELLIPSIZE_END)
+		column_album = gtk.TreeViewColumn("Album", cell, markup=3)
+		column_album.set_min_width(160)
 		columns.append(column_album)
 		cell.connect("edited", self.on_edited_cell, (self.listStore, 3))
 
 		# Colonna "Duration"
 		cell = gtk.CellRendererText()
 		column_duration = gtk.TreeViewColumn("Duration", cell, text=4)
-		column_duration.set_min_width(90)
+		column_duration.set_min_width(80)
 		columns.append(column_duration)
 		cell.connect("edited", self.on_edited_cell, (self.listStore, 4))
 
 		# Colonna "File name"
 		cell = gtk.CellRendererText()
+		cell.set_property("ellipsize", pango.ELLIPSIZE_END)
 		column_file_name = gtk.TreeViewColumn("File name", cell, text=5)
 		column_file_name.set_min_width(125)
 		columns.append(column_file_name)
@@ -1229,6 +1235,7 @@ class FileTable:
 
 		# Colonna "Path"
 		cell = gtk.CellRendererText()
+		cell.set_property("ellipsize", pango.ELLIPSIZE_END)
 		column_path = gtk.TreeViewColumn("Path", cell, text=6)
 		column_path.set_min_width(250)
 		columns.append(column_path)
@@ -1263,7 +1270,7 @@ class FileTable:
 			ft = lambda x : x=="" and "Unknown title" or x
 			fa = lambda x : x=="" and "Unknown artist" or x
 			fl = lambda x : x=="" and "Unknown album" or x
-			applist = [str(af.get_tag("track_number")), fa(af.get_tag("artist")), ft(af.get_tag("title")), fl(af.get_tag("album")), af.get_duration_mm_ss(), af.get_filename(), af.get_filepath()]
+			applist = [str(af.get_tag("track_number")), fa(af.get_tag("artist")), fl("""<span><b><i>{0}</i></b></span>""".format(af.get_tag("title"))), fl("""<span><i>{0}</i></span>""".format(af.get_tag("album"))), af.get_duration_mm_ss(), af.get_filename(), af.get_filepath()]
 			self.listStore.append(applist)
 			self.pointer = self.pointer + 1
 			af.pointer = self.pointer
