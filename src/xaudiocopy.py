@@ -648,6 +648,7 @@ class classXAudioCopy:
 			except: raise
 
 			if tags_list == None:
+				self.TagBar.hide()
 				return
 
 			self.TagBar.entry_tag(
@@ -683,6 +684,7 @@ class classXAudioCopy:
 			self.cmdConvert.set_sensitive(False)
 			self.menuConvert.set_sensitive(False)
 		else:
+			self.TagBar.hide()
 			return
 
 
@@ -1171,7 +1173,7 @@ class FileTable:
 
 		# Collega il TreeView
 		self.tvFileList = builderXAC.get_object("trvFileList")
-
+		self.tvFileList.set_rules_hint(True)
 		# Crea il modello ListStore con il contenuto della tabella
 		self.listStore = gtk.ListStore(str, str, str, str, str, str, str)
 		# Lo collega al TreeView
@@ -1342,8 +1344,8 @@ class FileTable:
 			print af.get_uri()
 
 	def on_edited_cell(self, cell, rowpath, new_text, user_data):
+
 		model, col_id = user_data
-		print col_id
 		iter = model.get_iter (rowpath)
 		model.set_value (iter, col_id, new_text)
 		model, pathlist = self.tvSelection.get_selected_rows()
@@ -1354,8 +1356,21 @@ class FileTable:
 				if str(af.pointer) == model.get_string_from_iter(it):
 					af.set_tag("track_number", model.get_value(it, 0))
 					af.set_tag("artist", model.get_value(it, 1))
-					af.set_tag("title", model.get_value(it, 2))
-					af.set_tag("album", model.get_value(it, 3))
+					if model.get_value(it, 2).startswith("<span><b><i>"):
+						tit1 = model.get_value(it, 2)[len("<span><b><i>"):]
+						tit = tit1[:len(tit1) - len("</span></b></i>")]
+						af.set_tag("title", tit)
+					else:
+						af.set_tag("title", model.get_value(it, 2))
+					if model.get_value(it, 3).startswith("<span><i>"):
+						alb1 = model.get_value(it, 3)[len("<span><i>"):]
+						alb = alb1[:len(alb1) - len("</span></i>")]
+						af.set_tag("album", alb)
+					else:
+						af.set_tag("album", model.get_value(it, 3))
+			self.append(xaudiocopy.audioFileList)
+			self.tvSelection.select_path(rowpath)
+
 
 ### Tabella del CD ###
 class TagBar:

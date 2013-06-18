@@ -26,7 +26,7 @@ try:
 	pygst.require("0.10")
 	import gst
 except:
-	print("GTK not available")
+	print("Gstreamer not available")
 	sys.exit(1)
 
 try:
@@ -123,7 +123,7 @@ class AudioFile:
 			self.__filepath = self.__uri
 
 		print "Uri: ", self.__uri
-		print "folder Uri: ", self.__folderuri
+		print "Folder Uri: ", self.__folderuri
 		print "Folder name: ", self.__foldername
 		print "File name: ", self.__filename
 		print "File path: ", self.__filepath
