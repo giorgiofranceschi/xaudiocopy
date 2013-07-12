@@ -57,6 +57,8 @@ MIME_WHITE_LIST = (
 	"audio/ogg",
 	"audio/flac",
 	"audio/x-raw-int",
+	"audio/x-raw-float",
+	"audio/x-raw",
 	"video/",
 	"video/x-matroska",
 	"video/x-msvideo",
@@ -102,7 +104,9 @@ class AudioFile:
 
 		#Indirizzo da usare per la riproduzione ('gstreamer')
 		self.__uri = uri
-
+		print self.__uri
+		print mimetypes.guess_type(self.__uri)[0]
+		print mimetypes.guess_type(self.__uri, strict=False)[0]
 		# Nome del file con o senza path e path derivati dall'uri
 		(self.__folderuri, self.__filename) = os.path.split(self.__uri)
 		if self.__folderuri == "cdda:":
@@ -195,7 +199,7 @@ class AudioFile:
 		# Dimensioni del file
 		if os.path.exists(self.__filepath):
 			self.__filesize = os.stat(self.__filepath).st_size
-
+		print "self.__filesize: ", self.__filesize 
 		# Trova il mimetype del file (usa il modulo "mimetypes")
 		# Non funziona con i CD
 		self.__mime_type = mimetypes.guess_type(self.__uri)[0]
@@ -213,6 +217,7 @@ class AudioFile:
 		else:
 			typeFinder = TypeFinder(self.__uri)
 			self.__gst_type = typeFinder.get_type()
+		print "self.__gst_type: ", self.__gst_type
 
 		# Cerca i tag nel file con gst
 		tagFinder = TagFinder(self.__uri)
@@ -223,7 +228,7 @@ class AudioFile:
 
 		#Inizializza i dati audio SOLO per file wav (usa il modulo "wave")
 		if self.__mime_type == "audio/x-wav":
-			w = wave.open(self.__filepath)
+			w = wave.open(self.__filepath)	
 			self.__n_channels = w.getnchannels()
 			self.__sampwidth_B = w.getsampwidth()
 			self.__sampwidth_b = self.__sampwidth_B * 8
@@ -495,11 +500,11 @@ class AudioFile:
 	# TODO: aggiungere metodo per ID3v1 senza mutagen
 	def write_metadata(self):
 		if MUTAGEN:
-			if "MP3" in self.__audio_codec:
+			if "mpeg" in self.__mime_type and "MP3" in self.__audio_codec:
 				# Prima scrive i tag v1 e v2, poi rimuove i v2
 				self.write_ID3v2()
 				self.remove_ID3v2()
-			elif "ogg" in self.__gst_type:
+			elif "ogg" in self.__mime_type:
 				tags = OggVorbis(self.__filepath)
 				tags["tracknumber"] = unicode(int(self.get_tag("track_number")))
 				tags["title"] = unicode(self.get_tag("title"))
@@ -517,7 +522,7 @@ class AudioFile:
 				
 				tags.save(self.__filepath)
 				
-			elif "flac" in self.__gst_type:
+			elif "flac" in self.__mime_type:
 				tags = FLAC(self.__filepath)
 				tags["tracknumber"] = unicode(int(self.get_tag("track_number")))
 				tags["title"] = unicode(self.get_tag("title"))
@@ -539,7 +544,7 @@ class AudioFile:
 	# TODO: opzione per distinguere tra v2.3 e v2.4
 	def write_ID3v2(self):
 		if MUTAGEN:
-			if "MP3" in self.__audio_codec:
+			if "mpeg" in self.__mime_type and "MP3" in self.__audio_codec:
 				try:
 					tags = ID3(self.__filepath)
 				except ID3NoHeaderError:
@@ -576,23 +581,23 @@ class AudioFile:
 	# TODO: metodo senza mutagen
 	def remove_metadata(self):
 		if MUTAGEN:
-			if "MP3" in self.__audio_codec:
+			if "mpeg" in self.__mime_type and "MP3" in self.__audio_codec:
 				try:
 					tags = ID3(self.__filepath)
 				except ID3NoHeaderError:
 					return
 				tags.delete(self.__filepath, delete_v1=True, delete_v2=True)
-			elif "ogg" in self.__gst_type:
+			elif "ogg" in self.__mime_type:
 				tags = OggVorbis(self.__filepath)
 				tags.delete()
-			elif "flac" in self.__gst_type:
+			elif "flac" in self.__mime_type:
 				tags = FLAC(self.__filepath)
 				tags.delete()
 
 	# Rimuove gli ID3v2 agli MP3
 	def remove_ID3v2(self):
 		if MUTAGEN:
-			if "MP3" in self.__audio_codec:
+			if "mpeg" in self.__mime_type and "MP3" in self.__audio_codec:
 				try:
 					tags = ID3(self.__filepath)
 				except ID3NoHeaderError:
@@ -602,7 +607,7 @@ class AudioFile:
 	# Rimuove gli ID3v1 agli MP3
 	def remove_ID3v1(self):
 		if MUTAGEN:
-			if "MP3" in self.__audio_codec:
+			if "mpeg" in self.__mime_type and "MP3" in self.__audio_codec:
 				try:
 					tags = ID3(self.__filepath)
 				except ID3NoHeaderError:
