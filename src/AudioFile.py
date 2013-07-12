@@ -104,9 +104,7 @@ class AudioFile:
 
 		#Indirizzo da usare per la riproduzione ('gstreamer')
 		self.__uri = uri
-		print self.__uri
-		print mimetypes.guess_type(self.__uri)[0]
-		print mimetypes.guess_type(self.__uri, strict=False)[0]
+
 		# Nome del file con o senza path e path derivati dall'uri
 		(self.__folderuri, self.__filename) = os.path.split(self.__uri)
 		if self.__folderuri == "cdda:":
@@ -494,7 +492,7 @@ class AudioFile:
 		return self.__private_frame
 
 	# Funzione che scrive i tag
-	# ID3v1 per MP3, Vorbis Comment per Vorbis, FLAC Comment per FLAC
+	# ID3v1 e v2 per MP3, Vorbis Comment per Vorbis, FLAC Comment per FLAC
 	# TODO: aggiungere APEv2, ecc.
 	# TODO: aggiungere copertine
 	# TODO: aggiungere metodo per ID3v1 senza mutagen
