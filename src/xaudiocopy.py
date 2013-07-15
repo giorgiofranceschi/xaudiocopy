@@ -1269,10 +1269,18 @@ class FileTable:
 		self.pointer = -1
 		for af in self.tableFileList.filelist:
 			# Popola di dati le righe
-			ft = lambda x : x=="" and "Unknown title" or x
 			fa = lambda x : x=="" and "Unknown artist" or x
+			ft = lambda x : x=="" and "Unknown title" or x
 			fl = lambda x : x=="" and "Unknown album" or x
-			applist = [str(af.get_tag("track_number")), fa(af.get_tag("artist")), fl("""<span><b><i>{0}</i></b></span>""".format(af.get_tag("title"))), fl("""<span><i>{0}</i></span>""".format(af.get_tag("album"))), af.get_duration_mm_ss(), af.get_filename(), af.get_filepath()]
+			applist = [
+				str(af.get_tag("track_number")), 
+				fa(af.get_tag("artist")), 
+				"""<span><b><i>{0}</i></b></span>""".format(ft(af.get_tag("title"))), 
+				"""<span><i>{0}</i></span>""".format(fl(af.get_tag("album"))), 
+				af.get_duration_mm_ss(), 
+				af.get_filename(), 
+				af.get_filepath(),
+				]
 			self.listStore.append(applist)
 			self.pointer = self.pointer + 1
 			af.pointer = self.pointer

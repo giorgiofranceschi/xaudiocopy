@@ -104,19 +104,19 @@ class AudioFile:
 
 		#Indirizzo da usare per la riproduzione ('gstreamer')
 		self.__uri = uri
-
+		print uri
 		# Nome del file con o senza path e path derivati dall'uri
 		(self.__folderuri, self.__filename) = os.path.split(self.__uri)
 		if self.__folderuri == "cdda:":
 			self.__foldername = "Audio CD"
 			self.__filepath = self.__uri
-		elif ("cdda:" in self.__folderuri) and self.__filename.endswith(".wav"):
-			self.__folderuri = "cdda:"
-			res = re.compile('\d+').findall(self.__filename)
-			self.__uri = self.__folderuri + "//" + "%.02d" % (int(res[0]))
-			self.__foldername = "Audio CD"
-			self.__filename = "Track " + "%.02d" % (int(res[0])) + ".wav"
-			self.__filepath = self.__uri
+		#elif ("cdda:" in self.__folderuri) and self.__filename.endswith(".wav"):
+		#	self.__folderuri = "cdda:"
+		#	res = re.compile('\d+').findall(self.__filename)
+		#	self.__uri = self.__folderuri + "//" + "%.02d" % (int(res[0]))
+		#	self.__foldername = "Audio CD"
+		#	self.__filename = "Track " + "%.02d" % (int(res[0])) + ".wav"
+		#	self.__filepath = self.__uri
 		elif self.__folderuri.startswith("file://"):
 			self.__foldername = self.__folderuri[7:]
 			self.__filepath = self.__foldername + "/" + self.__filename
